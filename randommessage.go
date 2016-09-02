@@ -75,7 +75,10 @@ func copyMessages(messages map[string]string) map[string]string {
 
 func writeRandomMessage(writer io.Writer, messages map[string]string) {
 	n := int64(len(messages))
-	r := rand.Int63n(n)
+	var r int64 = 0
+	if n > 0 {
+		r = rand.Int63n(n)
+	}
 	i := int64(0)
 	var message string
 	for _, v := range messages {
