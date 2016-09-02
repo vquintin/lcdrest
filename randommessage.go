@@ -45,13 +45,15 @@ func (rm *randomMessage) Close() error {
 func monitor(rm *randomMessage) {
 	messages := make(map[string]string)
 	ticker := time.NewTicker(15 * time.Second)
-	select {
-	case m := <-rm.add:
-		messages[m.key] = m.message
-	case <-ticker.C:
-		writeRandomMessage(rm.writer, messages)
-	case <-rm.quit:
-		return
+	for {
+		select {
+		case m := <-rm.add:
+			messages[m.key] = m.message
+		case <-ticker.C:
+			writeRandomMessage(rm.writer, messages)
+		case <-rm.quit:
+			return
+		}
 	}
 }
 
