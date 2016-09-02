@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/davecheney/i2c"
+	"github.com/vquintin/i2c"
 	"github.com/vquintin/lcdrest"
 )
 
