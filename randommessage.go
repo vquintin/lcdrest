@@ -13,12 +13,9 @@ type pair struct {
 }
 
 type randomMessage struct {
-	writer     io.Writer
-	add        chan pair
-	delete     chan string
-	getRequest chan int
-	getAnswer  chan map[string]string
-	quit       chan int
+	writer io.Writer
+	add    chan pair
+	quit   chan int
 }
 
 func NewRandomMessage(w io.Writer) *randomMessage {
@@ -36,15 +33,6 @@ func (rm *randomMessage) Add(key string, message string) {
 	log.Print("[lcdrest][randomMessage][Add] Exit.")
 }
 
-func (rm *randomMessage) Delete(key string) {
-	rm.delete <- key
-}
-
-func (rm *randomMessage) GetAll() map[string]string {
-	rm.getRequest <- 0
-	return <-rm.getAnswer
-}
-
 func (rm *randomMessage) Close() error {
 	rm.quit <- 0
 	return nil
@@ -56,11 +44,6 @@ func monitor(rm *randomMessage) {
 	select {
 	case m := <-rm.add:
 		messages[m.key] = m.message
-	case k := <-rm.delete:
-		delete(messages, k)
-	case <-rm.getRequest:
-		messagesCopy := copyMessages(messages)
-		rm.getAnswer <- messagesCopy
 	case <-ticker.C:
 		writeRandomMessage(rm.writer, messages)
 	case <-rm.quit:
