@@ -2,6 +2,7 @@ package lcdrest
 
 import (
 	"io"
+	"log"
 	"math/rand"
 	"time"
 )
@@ -27,6 +28,7 @@ func NewRandomMessage(w io.Writer) randomMessage {
 }
 
 func (rm randomMessage) Add(key string, message string) {
+	log.Printf("Adding message '%v' for key '%v'", message, key)
 	rm.add <- pair{
 		key:     key,
 		message: message,
