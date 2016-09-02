@@ -28,11 +28,12 @@ func NewRandomMessage(w io.Writer) randomMessage {
 }
 
 func (rm randomMessage) Add(key string, message string) {
-	log.Printf("Adding message '%v' for key '%v'", message, key)
+	log.Printf("[lcdrest][randomMessage][Add] Adding message '%v' for key '%v'.", message, key)
 	rm.add <- pair{
 		key:     key,
 		message: message,
 	}
+	log.Print("[lcdrest][randomMessage][Add] Exit.")
 }
 
 func (rm randomMessage) Delete(key string) {
