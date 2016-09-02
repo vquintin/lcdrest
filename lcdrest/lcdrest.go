@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	rs uint8 = 1 << iota
+	rs uint8 = iota
 	rw
 	en
 	backlight
