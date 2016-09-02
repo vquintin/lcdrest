@@ -19,7 +19,11 @@ type randomMessage struct {
 }
 
 func NewRandomMessage(w io.Writer) *randomMessage {
-	rm := &randomMessage{writer: w}
+	rm := &randomMessage{
+		writer: w,
+		add:    make(chan pair),
+		quit:   make(chan int),
+	}
 	go monitor(rm)
 	return rm
 }
