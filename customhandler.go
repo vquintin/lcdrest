@@ -2,7 +2,6 @@ package lcdrest
 
 import (
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -13,10 +12,8 @@ type adder struct {
 }
 
 func (a *adder) apply(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	log.Printf("Map content: %v", vars)
-	key := vars["key"]
-	message := vars["message"]
+	key := r.FormValue("key")
+	message := r.FormValue("message")
 	a.rm.Add(key, message)
 }
 
