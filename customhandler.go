@@ -2,6 +2,7 @@ package lcdrest
 
 import (
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -11,8 +12,9 @@ type adder struct {
 	rm *randomMessage
 }
 
-func (a adder) apply(w http.ResponseWriter, r *http.Request) {
+func (a *adder) apply(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
+	log.Printf("Map content: %v", vars)
 	key := vars["key"]
 	message := vars["message"]
 	a.rm.Add(key, message)
@@ -26,12 +28,13 @@ type route struct {
 }
 
 func getRoutes(rm *randomMessage) []route {
+	a := &adder{rm}
 	return []route{
 		route{
 			Name:        "Add",
 			Method:      "POST",
 			Pattern:     "/",
-			HandlerFunc: adder{rm}.apply,
+			HandlerFunc: a.apply,
 		},
 	}
 }
