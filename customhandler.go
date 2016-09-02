@@ -8,7 +8,7 @@ import (
 )
 
 type adder struct {
-	rm randomMessage
+	rm *randomMessage
 }
 
 func (a adder) apply(w http.ResponseWriter, r *http.Request) {
@@ -25,7 +25,7 @@ type route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func getRoutes(rm randomMessage) []route {
+func getRoutes(rm *randomMessage) []route {
 	return []route{
 		route{
 			Name:        "Add",

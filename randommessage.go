@@ -21,13 +21,13 @@ type randomMessage struct {
 	quit       chan int
 }
 
-func NewRandomMessage(w io.Writer) randomMessage {
-	rm := randomMessage{writer: w}
+func NewRandomMessage(w io.Writer) *randomMessage {
+	rm := &randomMessage{writer: w}
 	go monitor(rm)
 	return rm
 }
 
-func (rm randomMessage) Add(key string, message string) {
+func (rm *randomMessage) Add(key string, message string) {
 	log.Printf("[lcdrest][randomMessage][Add] Adding message '%v' for key '%v'.", message, key)
 	rm.add <- pair{
 		key:     key,
@@ -36,21 +36,21 @@ func (rm randomMessage) Add(key string, message string) {
 	log.Print("[lcdrest][randomMessage][Add] Exit.")
 }
 
-func (rm randomMessage) Delete(key string) {
+func (rm *randomMessage) Delete(key string) {
 	rm.delete <- key
 }
 
-func (rm randomMessage) GetAll() map[string]string {
+func (rm *randomMessage) GetAll() map[string]string {
 	rm.getRequest <- 0
 	return <-rm.getAnswer
 }
 
-func (rm randomMessage) Close() error {
+func (rm *randomMessage) Close() error {
 	rm.quit <- 0
 	return nil
 }
 
-func monitor(rm randomMessage) {
+func monitor(rm *randomMessage) {
 	messages := make(map[string]string)
 	ticker := time.NewTicker(15 * time.Second)
 	select {
