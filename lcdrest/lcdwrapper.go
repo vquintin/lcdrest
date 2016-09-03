@@ -12,7 +12,10 @@ type lcdWrapper struct {
 func (lw *lcdWrapper) Write(buf []byte) (int, error) {
 	lw.lcd.Clear()
 	lw.lcd.Home()
-	buffer := buf[:screenSize]
+	buffer := buf
+	if len(buf) > screenSize {
+		buffer = buf[:screenSize]
+	}
 	buffer = reorderLines(buffer)
 	return lw.lcd.Write(buffer)
 }
