@@ -20,11 +20,11 @@ func (lw *lcdWrapper) Write(buf []byte) (int, error) {
 func reorderLines(buffer []byte) []byte {
 	size := bufferSize(len(buffer))
 	result := make([]byte, size)
-	for i, _ := range result {
+	for i := range result {
 		result[i] = ' '
 	}
 	for i, v := range buffer {
-		result[position(i)] = buffer[i]
+		result[position(i)] = v
 	}
 	return result
 }
