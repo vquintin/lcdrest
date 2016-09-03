@@ -35,7 +35,7 @@ func main() {
 		log.Fatal("Cant' open lcd screen")
 	}
 	lcd.BacklightOn()
-	handler := lcdrest.NewCustomHandler(lcdWrapper{lcd})
+	handler := lcdrest.NewCustomHandler(&lcdWrapper{lcd})
 	serverAddress := fmt.Sprintf(":%v", *port)
 	log.Fatal(http.ListenAndServe(serverAddress, handler))
 }
