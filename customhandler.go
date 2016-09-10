@@ -1,14 +1,16 @@
 package lcdrest
 
 import (
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/gorilla/mux"
 )
 
 type customHandler struct {
-	rm       randomMessage
+	rm       *randomMessage
 	delegate http.Handler
 }
 
@@ -19,16 +21,41 @@ func (ch customHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (ch customHandler) put(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
-	log.Printf("[DEBUG][lcdRest][customHandler][put] %v", r)
-	ch.rm.Put(key, "")
+	rawBody, err := ioutil.ReadAll(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	values, err := url.ParseQuery(string(rawBody))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	log.Printf("[DEBUG][lcdRest][customHandler][put] %v", values)
+	messageSlice, ok := values["message"]
+	if !ok || len(messageSlice) != 1 {
+		w.WriteHeader(http.StatusBadRequest)
+	} else {
+		message := messageSlice[0]
+		_, created := ch.rm.Put(key, message)
+		if created {
+			w.WriteHeader(http.StatusCreated)
+		}
+	}
 }
 
 func (ch customHandler) get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
-	message, _ := ch.rm.Get(key)
+	message, found := ch.rm.Get(key)
 	_, err := w.Write([]byte(message))
-	log.Printf("[ERROR][lcdRest][customHandler][get] %v", err)
+	if err != nil {
+		log.Printf("[ERROR][lcdRest][customHandler][get] %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+	} else if !found {
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
 
 func (ch customHandler) delete(w http.ResponseWriter, r *http.Request) {
@@ -67,7 +94,7 @@ func getRoutes(ch customHandler) []route {
 	}
 }
 
-func NewCustomHandler(rm randomMessage) http.Handler {
+func NewCustomHandler(rm *randomMessage) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 	ch := customHandler{rm: rm}
 	routes := getRoutes(ch)
