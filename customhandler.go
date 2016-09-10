@@ -1,20 +1,40 @@
 package lcdrest
 
 import (
-	"io"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 )
 
-type adder struct {
-	rm *randomMessage
+type customHandler struct {
+	rm       randomMessage
+	delegate http.Handler
 }
 
-func (a *adder) apply(w http.ResponseWriter, r *http.Request) {
-	key := r.FormValue("key")
-	message := r.FormValue("message")
-	a.rm.Add(key, message)
+func (ch customHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ch.delegate.ServeHTTP(w, r)
+}
+
+func (ch customHandler) put(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["key"]
+	log.Printf("[DEBUG][lcdRest][customHandler][put] %v", r)
+	ch.rm.Put(key, "")
+}
+
+func (ch customHandler) get(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["key"]
+	message, _ := ch.rm.Get(key)
+	_, err := w.Write([]byte(message))
+	log.Printf("[ERROR][lcdRest][customHandler][get] %v", err)
+}
+
+func (ch customHandler) delete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	key := vars["key"]
+	ch.rm.Delete(key)
 }
 
 type route struct {
@@ -24,22 +44,33 @@ type route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-func getRoutes(rm *randomMessage) []route {
-	a := &adder{rm}
+func getRoutes(ch customHandler) []route {
 	return []route{
 		route{
-			Name:        "Add",
-			Method:      "POST",
-			Pattern:     "/",
-			HandlerFunc: a.apply,
+			Name:        "Put",
+			Method:      "PUT",
+			Pattern:     "/{key}",
+			HandlerFunc: ch.put,
+		},
+		route{
+			Name:        "Get",
+			Method:      "GET",
+			Pattern:     "/{key}",
+			HandlerFunc: ch.get,
+		},
+		route{
+			Name:        "Delete",
+			Method:      "DELETE",
+			Pattern:     "/{key}",
+			HandlerFunc: ch.delete,
 		},
 	}
 }
 
-func NewCustomHandler(writer io.Writer) http.Handler {
+func NewCustomHandler(rm randomMessage) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
-	rm := NewRandomMessage(writer)
-	routes := getRoutes(rm)
+	ch := customHandler{rm: rm}
+	routes := getRoutes(ch)
 	for _, route := range routes {
 		router.
 			Methods(route.Method).
@@ -47,5 +78,6 @@ func NewCustomHandler(writer io.Writer) http.Handler {
 			Name(route.Name).
 			Handler(route.HandlerFunc)
 	}
-	return router
+	ch.delegate = router
+	return ch
 }
