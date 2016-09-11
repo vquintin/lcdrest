@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/vquintin/i2c"
 	"github.com/vquintin/lcdrest"
@@ -35,7 +36,8 @@ func main() {
 		log.Fatal("Cant' open lcd screen")
 	}
 	lcd.BacklightOn()
-	handler := lcdrest.NewCustomHandler(&lcdWrapper{lcd})
+	rm := lcdrest.NewRandomMessage(&lcdWrapper{lcd}, 10*time.Second)
+	handler := lcdrest.NewCustomHandler(rm)
 	serverAddress := fmt.Sprintf(":%v", *port)
 	log.Fatal(http.ListenAndServe(serverAddress, handler))
 }

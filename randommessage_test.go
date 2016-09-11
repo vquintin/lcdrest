@@ -56,7 +56,7 @@ func TestDoublePutRandomMessage(t *testing.T) {
 
 type mockWriter struct {
 	lock   sync.Mutex
-	rm     *randomMessage
+	rm     *RandomMessage
 	actual string
 }
 

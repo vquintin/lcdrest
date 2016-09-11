@@ -2,7 +2,6 @@ package lcdrest
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 
@@ -10,7 +9,7 @@ import (
 )
 
 type customHandler struct {
-	rm       *randomMessage
+	rm       *RandomMessage
 	delegate http.Handler
 }
 
@@ -32,7 +31,6 @@ func (ch customHandler) put(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Printf("[DEBUG][lcdRest][customHandler][put] %v", values)
 	messageSlice, ok := values["message"]
 	if !ok || len(messageSlice) != 1 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -49,11 +47,12 @@ func (ch customHandler) get(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
 	message, found := ch.rm.Get(key)
-	_, err := w.Write([]byte(message))
-	if err != nil {
-		log.Printf("[ERROR][lcdRest][customHandler][get] %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-	} else if !found {
+	if found {
+		_, err := w.Write([]byte(message))
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	} else {
 		w.WriteHeader(http.StatusNotFound)
 	}
 }
@@ -61,7 +60,10 @@ func (ch customHandler) get(w http.ResponseWriter, r *http.Request) {
 func (ch customHandler) delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	key := vars["key"]
-	ch.rm.Delete(key)
+	_, found := ch.rm.Delete(key)
+	if !found {
+		w.WriteHeader(http.StatusNotFound)
+	}
 }
 
 type route struct {
@@ -94,7 +96,7 @@ func getRoutes(ch customHandler) []route {
 	}
 }
 
-func NewCustomHandler(rm *randomMessage) http.Handler {
+func NewCustomHandler(rm *RandomMessage) http.Handler {
 	router := mux.NewRouter().StrictSlash(true)
 	ch := customHandler{rm: rm}
 	routes := getRoutes(ch)

@@ -8,15 +8,15 @@ import (
 	"time"
 )
 
-type randomMessage struct {
+type RandomMessage struct {
 	lock     sync.RWMutex
 	messages map[string]string
 	writer   io.Writer
 	quit     chan int
 }
 
-func NewRandomMessage(w io.Writer, duration time.Duration) *randomMessage {
-	rm := &randomMessage{
+func NewRandomMessage(w io.Writer, duration time.Duration) *RandomMessage {
+	rm := &RandomMessage{
 		messages: make(map[string]string),
 		writer:   w,
 		quit:     make(chan int),
@@ -25,9 +25,9 @@ func NewRandomMessage(w io.Writer, duration time.Duration) *randomMessage {
 	return rm
 }
 
-func (rm *randomMessage) Put(key string, message string) (string, bool) {
-	log.Printf("[lcdrest][randomMessage][Put] Putting message '%v' for key '%v'.", message, key)
-	defer log.Print("[lcdrest][randomMessage][Put] Exit.")
+func (rm *RandomMessage) Put(key string, message string) (string, bool) {
+	log.Printf("[lcdrest][RandomMessage][Put] Putting message '%v' for key '%v'.", message, key)
+	defer log.Print("[lcdrest][RandomMessage][Put] Exit.")
 	rm.lock.Lock()
 	defer rm.lock.Unlock()
 	old, exists := rm.messages[key]
@@ -35,18 +35,18 @@ func (rm *randomMessage) Put(key string, message string) (string, bool) {
 	return old, !exists
 }
 
-func (rm *randomMessage) Get(key string) (string, bool) {
-	log.Printf("[lcdrest][randomMessage][Get] Getting message for key '%v'.", key)
-	defer log.Print("[lcdrest][randomMessage][Get] Exit.")
+func (rm *RandomMessage) Get(key string) (string, bool) {
+	log.Printf("[lcdrest][RandomMessage][Get] Getting message for key '%v'.", key)
+	defer log.Print("[lcdrest][RandomMessage][Get] Exit.")
 	rm.lock.RLock()
 	defer rm.lock.RUnlock()
 	v, ok := rm.messages[key]
 	return v, ok
 }
 
-func (rm *randomMessage) Delete(key string) (string, bool) {
-	log.Printf("[lcdrest][randomMessage][Delete] Deleting message for key '%v'.", key)
-	defer log.Print("[lcdrest][randomMessage][Delete] Exit.")
+func (rm *RandomMessage) Delete(key string) (string, bool) {
+	log.Printf("[lcdrest][RandomMessage][Delete] Deleting message for key '%v'.", key)
+	defer log.Print("[lcdrest][RandomMessage][Delete] Exit.")
 	rm.lock.Lock()
 	rm.lock.Unlock()
 	old, ok := rm.messages[key]
@@ -54,12 +54,12 @@ func (rm *randomMessage) Delete(key string) (string, bool) {
 	return old, ok
 }
 
-func (rm *randomMessage) Close() error {
+func (rm *RandomMessage) Close() error {
 	rm.quit <- 0
 	return nil
 }
 
-func (rm *randomMessage) writeRoutine(duration time.Duration) {
+func (rm *RandomMessage) writeRoutine(duration time.Duration) {
 	ticker := time.NewTicker(duration)
 	for {
 		select {
@@ -71,7 +71,7 @@ func (rm *randomMessage) writeRoutine(duration time.Duration) {
 	}
 }
 
-func (rm *randomMessage) writeRandomMessage() {
+func (rm *RandomMessage) writeRandomMessage() {
 	rm.lock.RLock()
 	defer rm.lock.RUnlock()
 	n := int64(len(rm.messages))
