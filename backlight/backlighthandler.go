@@ -79,7 +79,7 @@ func getRoutes(bh BacklightHandler) []route {
 			Name:        "Off",
 			Method:      "POST",
 			Pattern:     "/off",
-			HandlerFunc: bh.on,
+			HandlerFunc: bh.off,
 		},
 		route{
 			Name:        "Level",
