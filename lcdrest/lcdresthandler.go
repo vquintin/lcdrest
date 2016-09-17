@@ -30,24 +30,18 @@ func (lrh LcdRestHandler) Close() error {
 }
 
 type route struct {
-	Name        string
-	Methods     []string
-	Pattern     string
+	Prefix      string
 	HandlerFunc http.HandlerFunc
 }
 
 func getRoutes(lrh LcdRestHandler) []route {
 	return []route{
 		route{
-			Name:        "backlight",
-			Methods:     []string{"POST", "PUT"},
-			Pattern:     "/backlight/",
+			Prefix:      "/backlight",
 			HandlerFunc: lrh.bh.ServeHTTP,
 		},
 		route{
-			Name:        "messages",
-			Methods:     []string{"GET", "PUT", "DELETE"},
-			Pattern:     "/messages/",
+			Prefix:      "/messages",
 			HandlerFunc: lrh.msh.ServeHTTP,
 		},
 	}
@@ -63,10 +57,7 @@ func NewLcdRestHandler(messageStore messagestore.MessageStore, lcd *i2c.Lcd, dur
 	}
 	routes := getRoutes(lrh)
 	for _, route := range routes {
-		router.
-			Methods(route.Methods...).
-			Path(route.Pattern).
-			Name(route.Name).
+		router.PathPrefix(route.Prefix).
 			Handler(route.HandlerFunc)
 	}
 	return lrh
