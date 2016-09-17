@@ -1,4 +1,4 @@
-package main
+package lcdrest
 
 import "github.com/vquintin/i2c"
 
