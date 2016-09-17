@@ -2,7 +2,6 @@ package backlight
 
 import (
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -29,7 +28,6 @@ func (bh BacklightHandler) on(w http.ResponseWriter, r *http.Request) {
 }
 
 func (bh BacklightHandler) off(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[backlight][BacklightHandler][off] Turning backlight off")
 	bh.bd.Off()
 }
 
@@ -51,7 +49,6 @@ func (bh BacklightHandler) setLevel(w http.ResponseWriter, r *http.Request) {
 	} else if level, err := strconv.Atoi(levelSlice[0]); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
-		log.Printf("[backlight][BacklightHandler][setLevel] Setting backlight level to %v", level)
 		bh.bd.SetLevel(level)
 	}
 }
