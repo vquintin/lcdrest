@@ -41,13 +41,13 @@ func getRoutes(lrh LcdRestHandler) []route {
 		route{
 			Name:        "backlight",
 			Methods:     []string{"POST", "PUT"},
-			Pattern:     "/backlight",
+			Pattern:     "/backlight/",
 			HandlerFunc: lrh.bh.ServeHTTP,
 		},
 		route{
 			Name:        "messages",
 			Methods:     []string{"GET", "PUT", "DELETE"},
-			Pattern:     "/off",
+			Pattern:     "/messages/",
 			HandlerFunc: lrh.msh.ServeHTTP,
 		},
 	}
