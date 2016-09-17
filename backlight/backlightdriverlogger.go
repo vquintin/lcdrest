@@ -3,25 +3,25 @@ package backlight
 import "log"
 
 type BacklightDriverLogger struct {
-	delegate BacklightDriver
+	Delegate BacklightDriver
 }
 
 func (bdl BacklightDriverLogger) Close() error {
 	log.Printf("[backlight][BacklightDriver][Close] Closing.")
-	return bdl.delegate.Close()
+	return bdl.Delegate.Close()
 }
 
 func (bdl BacklightDriverLogger) On() {
 	log.Printf("[backlight][BacklightDriver][On] Turning backlight on.")
-	bdl.delegate.On()
+	bdl.Delegate.On()
 }
 
 func (bdl BacklightDriverLogger) Off() {
 	log.Printf("[backlight][BacklightDriver][Off] Turning backlight off.")
-	bdl.delegate.Off()
+	bdl.Delegate.Off()
 }
 
 func (bdl BacklightDriverLogger) SetLevel(level int) {
-	log.Printf("[backlight][BacklightDriver][Off] Setting backlight level to %v", level)
-	bdl.delegate.Off()
+	log.Printf("[backlight][BacklightDriver][SetLevel] Setting backlight level to %v", level)
+	bdl.Delegate.SetLevel(level)
 }

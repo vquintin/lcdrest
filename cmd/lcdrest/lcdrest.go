@@ -36,7 +36,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Cant' open lcd screen")
 	}
-	messages := messagestore.NewSynchronizedMessageStore()
+	messages := messagestore.MessageStoreLogger{
+		Delegate: messagestore.NewSynchronizedMessageStore(),
+	}
 	handler := lcdrest.NewLcdRestHandler(messages, lcd, 10*time.Second)
 	serverAddress := fmt.Sprintf(":%v", *port)
 	log.Fatal(http.ListenAndServe(serverAddress, handler))
