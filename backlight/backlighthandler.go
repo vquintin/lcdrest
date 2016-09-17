@@ -2,6 +2,7 @@ package backlight
 
 import (
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -24,14 +25,20 @@ func (bh BacklightHandler) Close() error {
 }
 
 func (bh BacklightHandler) on(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[backlight][BacklightHandler][on] Turning backlight on")
+	defer log.Print("[backlight][BacklightHandler][on] Exit.")
 	bh.bd.On()
 }
 
 func (bh BacklightHandler) off(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[backlight][BacklightHandler][off] Turning backlight off")
+	defer log.Print("[backlight][BacklightHandler][off] Exit.")
 	bh.bd.Off()
 }
 
 func (bh BacklightHandler) setLevel(w http.ResponseWriter, r *http.Request) {
+	log.Printf("[backlight][BacklightHandler][setLevel] Setting backlight level")
+	defer log.Print("[backlight][BacklightHandler][setLevel] Exit.")
 	rawBody, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
