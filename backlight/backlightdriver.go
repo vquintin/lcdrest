@@ -59,10 +59,8 @@ func backlightRoutine(lcd *i2c.Lcd, levelC <-chan int, onC <-chan bool) {
 			if on {
 				lcd.BacklightOn()
 				time.Sleep(time.Duration(level) * PWMPERIOD / MAXBACKLIGHT)
-				lcd.BacklightOff()
-			} else {
-				lcd.BacklightOff()
 			}
+			lcd.BacklightOff()
 		case level = <-levelC:
 		case on = <-onC:
 		}
