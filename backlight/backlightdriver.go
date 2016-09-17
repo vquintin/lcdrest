@@ -1,6 +1,7 @@
 package backlight
 
 import (
+	"io"
 	"time"
 
 	"github.com/vquintin/i2c"
@@ -11,7 +12,14 @@ const (
 	PWMPERIOD    = time.Second / 100
 )
 
-type BacklightDriver struct {
+type BacklightDriver interface {
+	On()
+	Off()
+	SetLevel(level int)
+	io.Closer
+}
+
+type backlightDriver struct {
 	levelC chan<- int
 	onC    chan<- bool
 }
@@ -20,26 +28,26 @@ func NewBacklightDriver(lcd *i2c.Lcd) BacklightDriver {
 	levelC := make(chan int)
 	onC := make(chan bool)
 	go backlightRoutine(lcd, levelC, onC)
-	return BacklightDriver{
+	return backlightDriver{
 		levelC: levelC,
 		onC:    onC,
 	}
 }
 
-func (bd BacklightDriver) Close() error {
+func (bd backlightDriver) Close() error {
 	//TODO
 	return nil
 }
 
-func (bd BacklightDriver) On() {
+func (bd backlightDriver) On() {
 	bd.onC <- true
 }
 
-func (bd BacklightDriver) Off() {
+func (bd backlightDriver) Off() {
 	bd.onC <- false
 }
 
-func (bd BacklightDriver) SetLevel(level int) {
+func (bd backlightDriver) SetLevel(level int) {
 	if level < 0 {
 		bd.levelC <- 0
 	} else if level > MAXBACKLIGHT {

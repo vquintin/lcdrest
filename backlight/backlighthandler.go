@@ -25,20 +25,15 @@ func (bh BacklightHandler) Close() error {
 }
 
 func (bh BacklightHandler) on(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[backlight][BacklightHandler][on] Turning backlight on")
-	defer log.Print("[backlight][BacklightHandler][on] Exit.")
 	bh.bd.On()
 }
 
 func (bh BacklightHandler) off(w http.ResponseWriter, r *http.Request) {
 	log.Printf("[backlight][BacklightHandler][off] Turning backlight off")
-	defer log.Print("[backlight][BacklightHandler][off] Exit.")
 	bh.bd.Off()
 }
 
 func (bh BacklightHandler) setLevel(w http.ResponseWriter, r *http.Request) {
-	log.Printf("[backlight][BacklightHandler][setLevel] Setting backlight level")
-	defer log.Print("[backlight][BacklightHandler][setLevel] Exit.")
 	rawBody, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
 	if err != nil {
@@ -56,6 +51,7 @@ func (bh BacklightHandler) setLevel(w http.ResponseWriter, r *http.Request) {
 	} else if level, err := strconv.Atoi(levelSlice[0]); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 	} else {
+		log.Printf("[backlight][BacklightHandler][setLevel] Setting backlight level to %v", level)
 		bh.bd.SetLevel(level)
 	}
 }
@@ -92,7 +88,7 @@ func getRoutes(bh BacklightHandler) []route {
 
 func NewBacklightHandler(lcd *i2c.Lcd) BacklightHandler {
 	router := mux.NewRouter().StrictSlash(true)
-	bd := NewBacklightDriver(lcd)
+	bd := BacklightDriverLogger{NewBacklightDriver(lcd)}
 	msh := BacklightHandler{bd: bd}
 	routes := getRoutes(msh)
 	for _, route := range routes {

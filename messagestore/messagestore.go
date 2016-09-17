@@ -18,7 +18,6 @@ type SynchronizedMessageStore struct {
 }
 
 func (sms *SynchronizedMessageStore) Put(key string, message string) (string, bool) {
-	log.Printf("[lcdrest][RandomMessage][Put] Putting message '%v' for key '%v'.", message, key)
 	defer log.Print("[lcdrest][RandomMessage][Put] Exit.")
 	sms.lock.Lock()
 	defer sms.lock.Unlock()
