@@ -7,7 +7,7 @@ type MessageStoreLogger struct {
 }
 
 func (msl MessageStoreLogger) Put(key string, message string) (string, bool) {
-	log.Printf("[messagestore][MessageStore][Put] Getting message '%v' for key '%v'.", message, key)
+	log.Printf("[messagestore][MessageStore][Put] Putting message '%v' for key '%v'.", message, key)
 	return msl.Delegate.Put(key, message)
 }
 
