@@ -2,6 +2,7 @@ package lcdrest
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -57,8 +58,16 @@ func NewLcdRestHandler(messageStore messagestore.MessageStore, lcd *i2c.Lcd, dur
 	}
 	routes := getRoutes(lrh)
 	for _, route := range routes {
-		router.PathPrefix(route.Prefix).
-			Handler(route.HandlerFunc)
+		mount(router, route.Prefix, route.HandlerFunc)
 	}
 	return lrh
+}
+
+func mount(r *mux.Router, path string, handler http.Handler) {
+	r.PathPrefix(path).Handler(
+		http.StripPrefix(
+			strings.TrimSuffix(path, "/"),
+			handler,
+		),
+	)
 }

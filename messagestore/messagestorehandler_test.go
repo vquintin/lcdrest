@@ -85,7 +85,7 @@ func TestGetRequestOnExistingKeyLeadsToSucess(t *testing.T) {
 	assert.Equal(t, "xyz", rr.Body.String())
 }
 
-func TestGetRequestOnNonExistingKeyLeadsToBadRequest(t *testing.T) {
+func TestGetRequestOnNonExistingKeyLeadsToNotFound(t *testing.T) {
 	req, err := http.NewRequest("GET", "/golang", nil)
 	if err != nil {
 		t.Fatal(err)
